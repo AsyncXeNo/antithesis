@@ -1,0 +1,1 @@
+SPRITES_PATH = "res/sprites/"
