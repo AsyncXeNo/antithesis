@@ -16,10 +16,9 @@ function love.load()
     log.info("Started")
     World = concord.world():addSystem(RenderSystem):addSystem(MovementSystem)
 
-    --TODO: Find a nice animated image to test for RenderSystem (ComplexSpriteRenderer)
     local test = concord.entity(World)
         :give("Position", 500, 400)
-        :give("SimpleSpriteRenderer", "player")
+        :give("ComplexSpriteRenderer", "monster", 1)
         :give("Movable", {x=0, y=-400}, {x=100000, y=100000}, {x = 0, y = 0}, {x=500, y=500})
 
     World:emit("init", World)

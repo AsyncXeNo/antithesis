@@ -13,3 +13,7 @@ function math.sign(num)
     else return 0 end
 
 end
+
+function math.round(num)
+    return math.floor(num+0.5)
+end

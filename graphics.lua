@@ -1,5 +1,6 @@
 local concord = require "libs.Concord"
 local log = require "libs.log"
+local inspect = require ("libs.inspect").inspect
 require "constants"
 local spritesheetIndex = require "res.spritesheets"
 
@@ -48,20 +49,21 @@ concord.component(
 --[[
     ComplexSpriteRenderer
 ]]
-concord.component {
+concord.component (
     "ComplexSpriteRenderer",
 
     function(component, index, fps, frame)
         
-        component.spritesheet = index or log.error('No sprite')
+        component.index = index or log.error('No sprite')
         component.fps = fps
-        component.frame = frame or 0
+        component.frame = frame or 1
+        component.quads = {}
 
     end
-}
+)
 
 --[[
-    Circle Renderer
+    CircleRenderer
 ]]
 concord.component(
     "CircleRenderer",
@@ -96,15 +98,16 @@ function RenderSystem:init()
 
     for _,e in ipairs(self.complexSpritePool) do
         local sprite = spritesheetIndex[e.ComplexSpriteRenderer.index]
+        log.info(sprite)
         e.ComplexSpriteRenderer.spritesheet = love.graphics.newImage(SPRITES_PATH .. sprite.path)
         local no_col = e.ComplexSpriteRenderer.spritesheet:getWidth() / sprite.size.x
         for i=1, sprite.frames, 1 do
-            e.ComplexSpriteRenderer.frames[i] = love.graphics.newQuad(
-                ((i-1) % no_col) * sprite.size.x + ((i-2) % no_col) * sprite.padding.x,
-                ((i-1) / no_col) * sprite.size.y + ((i-2) / no_col) * sprite.padding.y,
-                sprite.size.x, 
-                sprite.size.y, 
-                e.ComplexSpriteRenderer.spritesheet:getWidth(), 
+            e.ComplexSpriteRenderer.quads[i] = love.graphics.newQuad(
+                ((i-1) % no_col) * sprite.size.x + (math.max((i-2),0) % no_col) * sprite.padding.x,
+                math.floor((i-1) / no_col) * sprite.size.y + math.floor(math.max((i-2),0) / no_col) * sprite.padding.y,
+                sprite.size.x,
+                sprite.size.y,
+                e.ComplexSpriteRenderer.spritesheet:getWidth(),
                 e.ComplexSpriteRenderer.spritesheet:getHeight()
             )
         end
@@ -112,10 +115,11 @@ function RenderSystem:init()
 
 end
 
-function RenderSystem:update(dt) 
+function RenderSystem:update(dt)
 
     for _,e in ipairs(self.complexSpritePool) do
-        e.ComplexSpriteRenderer.frame = e.ComplexSpriteRenderer.frame + e.ComplexSpriteRenderer.fps * dt
+        local sprite = spritesheetIndex[e.ComplexSpriteRenderer.index]
+        e.ComplexSpriteRenderer.frame = math.round(((e.ComplexSpriteRenderer.frame + e.ComplexSpriteRenderer.fps * dt) % sprite.frames)+1)
     end
 
 end
@@ -125,9 +129,9 @@ function RenderSystem:draw()
     for _,e in ipairs(self.boxPool) do
         love.graphics.setColor(unpack(e.BoxRenderer.color))
         love.graphics.rectangle(
-            e.BoxRenderer.mode, 
-            e.Position.x - e.BoxRenderer.width / 2, 
-            e.Position.y - e.BoxRenderer.height / 2, 
+            e.BoxRenderer.mode,
+            e.Position.x - e.BoxRenderer.width / 2,
+            e.Position.y - e.BoxRenderer.height / 2,
             e.BoxRenderer.width, e.BoxRenderer.height
         )
 
@@ -136,23 +140,23 @@ function RenderSystem:draw()
     for _,e in ipairs(self.circlePool) do
         love.graphics.setColor(unpack(e.CircleRenderer.color))
         love.graphics.circle(
-            e.CircleRenderer.mode, 
-            e.Position.x, 
-            e.Position.y, 
+            e.CircleRenderer.mode,
+            e.Position.x,
+            e.Position.y,
             e.CircleRenderer.radius
         )
     end
 
     for _,e in ipairs(self.simpleSpritePool) do
         love.graphics.draw(
-            e.SimpleSpriteRenderer.loaded, 
-            e.Position.x - e.SimpleSpriteRenderer.loaded:getWidth()/2, 
+            e.SimpleSpriteRenderer.loaded,
+            e.Position.x - e.SimpleSpriteRenderer.loaded:getWidth()/2,
             e.Position.y - e.SimpleSpriteRenderer.loaded:getHeight()/2
         )
     end
 
     for _,e in ipairs(self.complexSpritePool) do
-        love.graphics.draw(e.ComplexSpriteRenderer.spritesheet, e.ComplexSpriteRenderer.quads[e.ComplexSpriteRenderer.frame])
+        love.graphics.draw(e.ComplexSpriteRenderer.spritesheet, e.ComplexSpriteRenderer.quads[e.ComplexSpriteRenderer.frame], e.Position.x, e.Position.y)
     end
 
 end
