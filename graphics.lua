@@ -1,37 +1,10 @@
 local concord = require "libs.Concord"
 local log = require "libs.log"
-local inspect = require ("libs.inspect").inspect
+local inspect = require ("libs.inspect")
 require "constants"
 local spritesheetIndex = require "res.spritesheets"
 
 -- COMPONENTS
-
---[[
-    Point Renderer
-]]
-concord.component(
-    "PointRenderer",
-
-    function(component) end
-)
-
-
---[[
-    Box Renderer
-]]
-concord.component(
-    "BoxRenderer",
-
-    function(component, width, height, color, mode)
-
-        component.width = width or 50
-        component.height = height or 50
-        component.color = color or {1, 0, 0, 1}
-        component.mode = mode or "fill"
-
-    end
-)
-
 
 --[[
     SimpleSpriteRenderer
@@ -52,15 +25,48 @@ concord.component(
 concord.component (
     "ComplexSpriteRenderer",
 
-    function(component, index, fps, frame)
+    function(component, index, speed, frame)
         
         component.index = index or log.error('No sprite')
-        component.fps = fps
+        component.speed = speed
         component.frame = frame or 1
         component.quads = {}
 
     end
 )
+
+--[[
+    Animator
+]]
+concord.component(
+    "Animator",
+
+    function(component, states, transitions, variables)
+        
+        component.states = states
+        component.currentState = states[ENTRY_STATE]
+        component.transitions = transitions
+        component.variables = variables
+
+    end
+)
+
+--[[
+    Box Renderer
+]]
+concord.component(
+    "BoxRenderer",
+
+    function(component, width, height, color, mode)
+
+        component.width = width or 50
+        component.height = height or 50
+        component.color = color or {1, 0, 0, 1}
+        component.mode = mode or "fill"
+
+    end
+)
+
 
 --[[
     CircleRenderer
@@ -77,6 +83,14 @@ concord.component(
     end
 )
 
+--[[
+    Point Renderer
+]]
+concord.component(
+    "PointRenderer",
+
+    function(component) end
+)
 
 --SYSTEMS
 
@@ -98,7 +112,6 @@ function RenderSystem:init()
 
     for _,e in ipairs(self.complexSpritePool) do
         local sprite = spritesheetIndex[e.ComplexSpriteRenderer.index]
-        log.info(sprite)
         e.ComplexSpriteRenderer.spritesheet = love.graphics.newImage(SPRITES_PATH .. sprite.path)
         local no_col = e.ComplexSpriteRenderer.spritesheet:getWidth() / sprite.size.x
         for i=1, sprite.frames, 1 do
@@ -119,7 +132,7 @@ function RenderSystem:update(dt)
 
     for _,e in ipairs(self.complexSpritePool) do
         local sprite = spritesheetIndex[e.ComplexSpriteRenderer.index]
-        e.ComplexSpriteRenderer.frame = math.round(((e.ComplexSpriteRenderer.frame + e.ComplexSpriteRenderer.fps * dt) % sprite.frames)+1)
+        e.ComplexSpriteRenderer.frame = (e.ComplexSpriteRenderer.frame + e.ComplexSpriteRenderer.speed * dt) % sprite.frames
     end
 
 end
@@ -156,7 +169,7 @@ function RenderSystem:draw()
     end
 
     for _,e in ipairs(self.complexSpritePool) do
-        love.graphics.draw(e.ComplexSpriteRenderer.spritesheet, e.ComplexSpriteRenderer.quads[e.ComplexSpriteRenderer.frame], e.Position.x, e.Position.y)
+        love.graphics.draw(e.ComplexSpriteRenderer.spritesheet, e.ComplexSpriteRenderer.quads[math.floor(e.ComplexSpriteRenderer.frame)+1], e.Position.x, e.Position.y)
     end
 
 end

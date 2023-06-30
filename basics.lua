@@ -5,6 +5,20 @@ require("utils")
 -- COMPONENTS
 
 --[[
+    Name
+]]
+concord.component(
+    "Information",
+
+    function(component, name, description)
+
+        component.name = name
+        component.description = description
+            
+    end
+)
+
+--[[
     Position
 ]]
 concord.component(
@@ -55,19 +69,24 @@ function MovementSystem:update(dt)
             -e.Movable.maxVel.y,
             e.Movable.maxVel.y
         )
-        
+
         local newVelFriction = {
             x = e.Movable.vel.x - math.sign(e.Movable.vel.x) * e.Movable.friction.x * dt,
             y = e.Movable.vel.y - math.sign(e.Movable.vel.y) * e.Movable.friction.y * dt
         }
-        
-        if (e.Movable.vel.x ~= 0 and (e.Movable.vel.x) * (newVelFriction.x) < 0) then
+
+        local doesCrossZero = {
+            x = (e.Movable.vel.x) * (newVelFriction.x) < 0,
+            y = (e.Movable.vel.y) * (newVelFriction.y) < 0
+        }
+
+        if (e.Movable.vel.x ~= 0 and doesCrossZero.x) or (e.Movable.vel.x == 0) then
             e.Movable.vel.x = 0;
         else
             e.Movable.vel.x = newVelFriction.x
         end
 
-        if (e.Movable.vel.y ~= 0 and (e.Movable.vel.y) * (newVelFriction.y) < 0) then
+        if (e.Movable.vel.y ~= 0 and doesCrossZero.y) or (e.Movable.vel.y == 0) then
             e.Movable.vel.y = 0;
         else
             e.Movable.vel.y = newVelFriction.y

@@ -5,21 +5,24 @@ local push = require "libs.push";
 local log = require "libs.log";
 require "basics"
 require "graphics"
+require "controller"
 
 function love.load()
 
     love.mouse.setVisible(false)
     local gameWidth, gameHeight = love.graphics.getDimensions()
     love.graphics.setDefaultFilter("nearest", "nearest")
+    love.window.setMode(gameWidth, gameHeight)
     push:setupScreen(1024, 576, 1920, 1080, {upscale = "normal"})
 
     log.info("Started")
-    World = concord.world():addSystem(RenderSystem):addSystem(MovementSystem)
+    World = concord.world():addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem)
 
     local test = concord.entity(World)
-        :give("Position", 500, 400)
+        :give("Position", 300, 300)
         :give("ComplexSpriteRenderer", "monster", 1)
-        :give("Movable", {x=0, y=-400}, {x=100000, y=100000}, {x = 0, y = 0}, {x=500, y=500})
+        :give("Movable", {x=0, y=0}, {x=1200, y=1200}, {x = 0, y = 0}, {x=50000, y=50000})
+        :give("Controllable", 100)
 
     World:emit("init", World)
 
