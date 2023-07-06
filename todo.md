@@ -1,6 +1,6 @@
 # Todo List
 
-## Colliding functions
+## Animator
 
-- Add colliding functions
-- Make collision open a message box
+- Finish animator update loop
+- *Transitions*

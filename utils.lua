@@ -1,5 +1,8 @@
+require("constants")
+
 Vector = {}
 List = {}
+States = {}
 
 function math.clamp(x, min, max)
 
@@ -50,4 +53,9 @@ end
 
 function math.toBool(num)
     if (num ~= 0) then return true else return false end
+end
+
+function States.table(tab, state)
+    tab[ENTRY_STATE] = state
+    return tab
 end

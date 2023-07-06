@@ -11,11 +11,12 @@ local log = require 'libs.log'
 concord.component(
     "Collider",
 
-    function (component, type, values, offset)
+    function (component, type, values, offset, colliding_func)
 
         component.type = type  -- BOX | CIRCLE
         component.values = values
         component.offset = offset or { x = 0, y = 0 }
+        component.colliding_func = colliding_func or function() end
         
     end
 )
@@ -35,6 +36,7 @@ function CollisionSystem:update(dt)
             if (e1 ~= e2) then
                 if (self:isColliding(e1, e2)) then
                     log.info("Colliding!")
+                    e1.Collider.colliding_func(e1, e2)
                 end
             end
         end

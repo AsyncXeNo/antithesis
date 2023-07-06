@@ -15,6 +15,7 @@ concord.component(
     function(component, sprite)
 
         component.sprite = sprite or log.error('No sprite')
+        component.loaded = love.graphics.newImage(SPRITES_PATH .. spritesheetIndex[component.sprite].path)
 
     end
 )
@@ -29,9 +30,21 @@ concord.component (
         
         component.index = index or log.error('No sprite')
         component.speed = speed
-        component.frame = frame or 1
+        component.frame = frame or 0
         component.quads = {}
-
+        local sprite = spritesheetIndex[component.index]
+        component.spritesheet = love.graphics.newImage(SPRITES_PATH .. sprite.path)
+        local no_col = component.spritesheet:getWidth() / sprite.size.x
+        for i=1, sprite.frames, 1 do
+            component.quads[i] = love.graphics.newQuad(
+                ((i-1) % no_col) * sprite.size.x + (math.max((i-2),0) % no_col) * sprite.padding.x,
+                math.floor((i-1) / no_col) * sprite.size.y + math.floor(math.max((i-2),0) / no_col) * sprite.padding.y,
+                sprite.size.x,
+                sprite.size.y,
+                component.spritesheet:getWidth(),
+                component.spritesheet:getHeight()
+            )
+        end
     end
 )
 
@@ -47,6 +60,12 @@ concord.component(
         component.currentState = states[ENTRY_STATE]
         component.transitions = transitions
         component.variables = variables
+
+        for _,t in ipairs(component.transitions) do
+            if #t.condition % 2 == 0 then
+                t.condition[#t.condition] = nil
+            end
+        end
 
     end
 )
@@ -101,32 +120,9 @@ RenderSystem = concord.system {
     boxPool = {"Position", "BoxRenderer"},
     circlePool = {"Position", "CircleRenderer"},
     simpleSpritePool = {"Position", "SimpleSpriteRenderer"},
-    complexSpritePool = {"Position", "ComplexSpriteRenderer"}
+    complexSpritePool = {"Position", "ComplexSpriteRenderer"},
+    customAnimPool = {"ComplexSpriteRenderer", "Animator"}
 }
-
-function RenderSystem:init()
-
-    for _,e in ipairs(self.simpleSpritePool) do
-        e.SimpleSpriteRenderer.loaded = love.graphics.newImage(SPRITES_PATH .. spritesheetIndex[e.SimpleSpriteRenderer.sprite].path)
-    end
-
-    for _,e in ipairs(self.complexSpritePool) do
-        local sprite = spritesheetIndex[e.ComplexSpriteRenderer.index]
-        e.ComplexSpriteRenderer.spritesheet = love.graphics.newImage(SPRITES_PATH .. sprite.path)
-        local no_col = e.ComplexSpriteRenderer.spritesheet:getWidth() / sprite.size.x
-        for i=1, sprite.frames, 1 do
-            e.ComplexSpriteRenderer.quads[i] = love.graphics.newQuad(
-                ((i-1) % no_col) * sprite.size.x + (math.max((i-2),0) % no_col) * sprite.padding.x,
-                math.floor((i-1) / no_col) * sprite.size.y + math.floor(math.max((i-2),0) / no_col) * sprite.padding.y,
-                sprite.size.x,
-                sprite.size.y,
-                e.ComplexSpriteRenderer.spritesheet:getWidth(),
-                e.ComplexSpriteRenderer.spritesheet:getHeight()
-            )
-        end
-    end
-
-end
 
 function RenderSystem:update(dt)
 
@@ -147,7 +143,7 @@ function RenderSystem:draw()
             e.Position.y - e.BoxRenderer.height / 2,
             e.BoxRenderer.width, e.BoxRenderer.height
         )
-
+        love.graphics.setColor{1, 1, 1, 1}
     end
 
     for _,e in ipairs(self.circlePool) do
@@ -158,6 +154,7 @@ function RenderSystem:draw()
             e.Position.y,
             e.CircleRenderer.radius
         )
+        love.graphics.setColor{1, 1, 1, 1}
     end
 
     for _,e in ipairs(self.simpleSpritePool) do
@@ -169,6 +166,7 @@ function RenderSystem:draw()
     end
 
     for _,e in ipairs(self.complexSpritePool) do
+        log.info(inspect(e.ComplexSpriteRenderer.quads))
         love.graphics.draw(e.ComplexSpriteRenderer.spritesheet, e.ComplexSpriteRenderer.quads[math.floor(e.ComplexSpriteRenderer.frame)+1], e.Position.x, e.Position.y)
     end
 

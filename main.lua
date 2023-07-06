@@ -7,6 +7,8 @@ require "physics"
 require "controller"
 require "text"
 
+World = concord.world()
+
 function love.load()
 
     love.mouse.setVisible(false)
@@ -16,7 +18,7 @@ function love.load()
     push:setupScreen(1024, 576, 1920, 1080, {upscale = "normal"})
 
     log.info("Started")
-    World = concord.world():addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem):addSystem(CollisionSystem):addSystem(MessageBoxSystem)
+    World:addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem):addSystem(CollisionSystem):addSystem(MessageBoxSystem)
 
     local test = concord.entity(World)
         :give("Position", 300, 300)
@@ -28,13 +30,31 @@ function love.load()
     local obj = concord.entity(World)
         :give("Position", 600, 300)
         :give ("CircleRenderer", 10, {0,0,1,1} )
-        :give("Collider", "CIRCLE", {r=10})
-
-    local msgBox = concord.entity(World)
-        :give("Position", 300, 300)
-        :give("MessageBox", {{1, 0.12, 0.44, 1}, "Hello World"})
+        :give("Collider", "CIRCLE", {r=10}, {x=0, y=0},
+            function(self, entity)
+                self:remove("Collider")
+                concord.entity(World)
+                    :give("Position", 300, 300)
+                    :give("MessageBox", {{1, 0.12, 0.44, 1}, "Hello World"})
+                concord.entity(World)
+                    :give("Position", 200, 300)
+                    :give("ComplexSpriteRenderer", "player", 0)
+                    :give("Animator", States.table({
+                        ["idle"] = "monster",
+                    }, "idle"), {}, {})
+            end
+        )
 
     World:emit("init", World)
+
+end
+
+function World:onEntityAdded(entity)
+
+    if entity.ComplexSpriteRenderer and entity.Animator then
+        entity.ComplexSpriteRenderer.index = entity.Animator.states[entity.Animator.currentState]
+        log.info("New entity")
+    end
 
 end
 

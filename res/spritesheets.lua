@@ -1,6 +1,15 @@
 return {
     ["player"] = {
-        ["path"] = "player.png"
+        ["path"] = "player.png",
+        ["size"] = {
+            ["x"] = 320,
+            ["y"] = 240
+        },
+        ["padding"] = {
+            ["x"] = 0,
+            ["y"] = 0
+        },
+        ["frames"] = 1
     },
     ["monster"] = {
         ["path"] = "monster-sheet.png",

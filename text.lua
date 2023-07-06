@@ -18,6 +18,10 @@ concord.component(
         component.duration = duration or 5  -- seconds
         component.size = size or {width=150, height=75}
         component.border = border or {width = 3, color = {1, 0.12, 0.44}}
+
+        component.counting = 0
+        component.alpha = 1
+        component.font = love.graphics.newFont(FONTS_PATH .. component.text_props.font .. ".ttf", component.text_props.size)
     end
 
 )
@@ -38,9 +42,6 @@ MessageBoxSystem = concord.system {
 
 function MessageBoxSystem:init()
     for _,e in ipairs(self.pool) do
-        e.MessageBox.font = love.graphics.newFont(FONTS_PATH .. e.MessageBox.text_props.font .. ".ttf", e.MessageBox.text_props.size)
-        e.MessageBox.counting = 0
-        e.MessageBox.alpha = 1
     end
 end
 
@@ -69,7 +70,6 @@ function  MessageBoxSystem:draw()
             e.MessageBox.size.width/16
         )
         local b_color = List.combineLists(e.MessageBox.border.color, {e.MessageBox.alpha})
-        log.info(inspect(b_color))
         love.graphics.setColor(b_color)
         love.graphics.setLineWidth(e.MessageBox.border.width)
         love.graphics.rectangle(
