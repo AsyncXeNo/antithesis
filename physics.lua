@@ -1,4 +1,4 @@
-local concord = require 'libs.concord'
+local concord = require 'libs.Concord'
 local inspect = require('libs.inspect')
 local log = require 'libs.log'
 
@@ -11,7 +11,7 @@ local log = require 'libs.log'
 concord.component(
     "Collider",
 
-    function (component, values, offset)
+    function (component, type, values, offset)
 
         component.type = type  -- BOX | CIRCLE
         component.values = values
@@ -23,7 +23,7 @@ concord.component(
 
 -- SYSTEMS
 
-CollisionSystem = concord.systems{
+CollisionSystem = concord.system{
     pool = {"Position", "Collider" },
     debugPool = {"Position", "Collider", "Information"}
 }
@@ -33,7 +33,7 @@ function CollisionSystem:update(dt)
     for _,e1 in ipairs(self.pool) do
         for _,e2 in ipairs(self.pool) do
             if (e1 ~= e2) then
-                if (self:isColliding(e1.Collider, e2.Collider)) then
+                if (self:isColliding(e1, e2)) then
                     log.info("Colliding!")
                 end
             end
@@ -43,7 +43,7 @@ function CollisionSystem:update(dt)
     for _,e1 in ipairs(self.debugPool) do
         for _,e2 in ipairs(self.debugPool) do
             if (e1 ~= e2) then
-                if (self:isColliding(e1.Collider, e2.Collider)) then
+                if (self:isColliding(e1, e2)) then
                     log.info("Colliding!")
                     log.info("e1: " .. e1.Information.name)
                     log.info("e2: " .. e2.Information.name)
@@ -56,13 +56,13 @@ end
 
 
 function CollisionSystem:isColliding(c1, c2)
-    if c1.type == "BOX" then
-        if c2.type == "BOX" then return self.collidingBB(c1, c2)
-        elseif c2.type == "CIRCLE" then return self.collidingBC(c1, c2)
+    if c1.Collider.type == "BOX" then
+        if c2.Collider.type == "BOX" then return self:collidingBB(c1, c2)
+        elseif c2.Collider.type == "CIRCLE" then return self:collidingBC(c1, c2)
         end
-    elseif c1.type == "CIRCLE" then
-        if c2.type == "BOX" then return self.collidingBC(c2, c1)
-        elseif c2.type == "CIRCLE" then return self.collidingCC(c1, c2)
+    elseif c1.Collider.type == "CIRCLE" then
+        if c2.Collider.type == "BOX" then return self:collidingBC(c2, c1)
+        elseif c2.Collider.type == "CIRCLE" then return self:collidingCC(c1, c2)
         end
     end
 end

@@ -1,4 +1,5 @@
 Vector = {}
+List = {}
 
 function math.clamp(x, min, max)
 
@@ -22,6 +23,17 @@ end
 
 function Vector.magnitude(vec)
     return math.sqrt(vec.x*vec.x + vec.y*vec.y)
+end
+
+function List.combineLists(t1, t2)
+    local t3 = {}
+    for i=1,#t1 do
+        t3[i] = t1[i]
+    end
+    for i=#t3+1,#t2+#t3+1 do
+        t3[i] = t2[i-#t3]
+    end
+    return t3
 end
 
 function Vector.normalize(vec)

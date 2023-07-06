@@ -1,6 +1,7 @@
 # Table Formats
 
 ## Spritesheets
+
 ```lua
 {
     ["path"] = <str>,
@@ -17,6 +18,7 @@
 ```
 
 ## States
+
 ```lua
 {
     ["name1"] = {

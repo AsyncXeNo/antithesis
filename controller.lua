@@ -61,7 +61,6 @@ function InputSystem:update(dt)
             x = (math.toBool(movDir.x) and (movDir.x * maxVel.x) or e.Movable.vel.x),
             y = (math.toBool(movDir.y) and (movDir.y * maxVel.y) or e.Movable.vel.y)
         }
-        log.info(inspect(e.Movable.vel))
     end
 
 end

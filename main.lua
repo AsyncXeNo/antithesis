@@ -1,11 +1,11 @@
-
-local inspect = require "libs.inspect";
 local concord = require "libs.Concord";
 local push = require "libs.push";
 local log = require "libs.log";
 require "basics"
 require "graphics"
+require "physics"
 require "controller"
+require "text"
 
 function love.load()
 
@@ -16,13 +16,23 @@ function love.load()
     push:setupScreen(1024, 576, 1920, 1080, {upscale = "normal"})
 
     log.info("Started")
-    World = concord.world():addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem)
+    World = concord.world():addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem):addSystem(CollisionSystem):addSystem(MessageBoxSystem)
 
     local test = concord.entity(World)
         :give("Position", 300, 300)
         :give("ComplexSpriteRenderer", "monster", 1)
         :give("Movable", {x=0, y=0}, {x=1200, y=1200}, {x = 0, y = 0}, {x=50000, y=50000})
         :give("Controllable", 100)
+        :give("Collider", "BOX", {width=32, height=32}, {x=0, y=0})
+
+    local obj = concord.entity(World)
+        :give("Position", 600, 300)
+        :give ("CircleRenderer", 10, {0,0,1,1} )
+        :give("Collider", "CIRCLE", {r=10})
+
+    local msgBox = concord.entity(World)
+        :give("Position", 300, 300)
+        :give("MessageBox", {{1, 0.12, 0.44, 1}, "Hello World"})
 
     World:emit("init", World)
 
