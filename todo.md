@@ -2,5 +2,6 @@
 
 ## Animator
 
-- Finish animator update loop
-- *Transitions*
+### Finish implementing TimelineSystem
+
+- Shoot

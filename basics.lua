@@ -12,11 +12,32 @@ require("utils")
 concord.component(
     "Information",
 
-    function(component, name, description)
+    function(component, name, description, extra)
 
         component.name = name
         component.description = description
+        
+        component.extra = extra or {}
             
+    end
+)
+
+--[[
+    Stats
+]]
+concord.component(
+    "Stats",
+
+    function (component, damage, hp, shield, regen, armor, armor_pen)
+
+        component.base = {
+            damage = damage,
+            maxHp = hp,
+            armor = armor,
+            armor_pen = armor_pen,
+            maxShield = shield
+        }
+
     end
 )
 
@@ -50,7 +71,6 @@ concord.component(
 
     end
 )
-
 
 -- SYSTEMS
 

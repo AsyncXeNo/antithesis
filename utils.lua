@@ -1,8 +1,11 @@
+local log = require "libs.log"
+
 require("constants")
 
 Vector = {}
 List = {}
 States = {}
+math.easingFunctions = {}
 
 function math.clamp(x, min, max)
 
@@ -22,6 +25,18 @@ end
 
 function math.round(num)
     return math.floor(num+0.5)
+end
+
+function math.lerp(a, b, t)
+    return a + (b-a) * t
+end
+
+function math.easingFunctions.easeInOutSine(a, b, t)
+    
+end
+
+function math.easingFunctions.easeInOutQuint(a, b, t)
+    return a + (b-a) * ((t < 0.5) and (16 * math.pow(t,5)) or (1 - math.pow(-2 * t + 2, 5) / 2))
 end
 
 function Vector.magnitude(vec)
