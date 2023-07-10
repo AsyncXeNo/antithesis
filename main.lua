@@ -1,11 +1,15 @@
 local concord = require "libs.Concord";
 local push = require "libs.push";
 local log = require "libs.log";
+
 require "basics"
 require "graphics"
 require "physics"
 require "controller"
 require "text"
+
+local spriteSheet = require "res.spritesheets"
+
 
 World = concord.world()
 
@@ -40,7 +44,10 @@ function love.load()
                     :give("Position", 200, 300)
                     :give("ComplexSpriteRenderer", "player", 0)
                     :give("Animator", States.table({
-                        ["idle"] = "monster",
+                        ["idle"] = {
+                            ["spritesheet"] = "monster",
+                            ["speed"] = 1,
+                        }
                     }, "idle"), {}, {})
             end
         )
@@ -49,10 +56,16 @@ function love.load()
 
 end
 
+
 function World:onEntityAdded(entity)
 
     if entity.ComplexSpriteRenderer and entity.Animator then
-        entity.ComplexSpriteRenderer.index = entity.Animator.states[entity.Animator.currentState]
+        local complexSprite = entity.ComplexSpriteRenderer
+        local AnimatorCurrentState =  entity.Animator.states[entity.Animator.currentState]
+
+        complexSprite.index = AnimatorCurrentState.spritesheet
+        complexSprite.speed = AnimatorCurrentState.speed
+        
         log.info("New entity")
     end
 

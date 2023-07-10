@@ -124,11 +124,83 @@ RenderSystem = concord.system {
     customAnimPool = {"ComplexSpriteRenderer", "Animator"}
 }
 
+function RenderSystem:getMapping(current, table)
+    local value = current
+    for k,v in pairs(table) do
+        if type(v) == "table" then
+            local d = RenderSystem:getMapping(current, v)
+            value = value[d]
+        else
+            value = value[v]
+        end
+    end
+    return value
+end
+
 function RenderSystem:update(dt)
 
     for _,e in ipairs(self.complexSpritePool) do
         local sprite = spritesheetIndex[e.ComplexSpriteRenderer.index]
         e.ComplexSpriteRenderer.frame = (e.ComplexSpriteRenderer.frame + e.ComplexSpriteRenderer.speed * dt) % sprite.frames
+    end
+
+    for _, e in ipairs(self.customAnimPool) do
+        local vars = {}
+        --Update the values of all variables
+        for k, v in pairs(e.Animator.variables) do
+            vars[k] = RenderSystem:getMapping(e, v)
+        end
+
+        -- current = Timeline.current[Timeline.index].test = "debug"
+        -- .. current .. = .. 'debug' ..
+
+        --Check all the transitions that start from the current animation
+        for k, v in pairs(e.Animator.transitions) do
+            if v.from == e.Animator.currentState then
+                local str = ""
+                for a,c in ipairs(v.condition) do
+                    if a % 2 == 0 then
+                        if c == "AND" then 
+                            str = str .. " and "
+                        elseif c == "OR" then
+                            str = str .. " or "
+                        end
+                    else
+                        local replaced = c
+                        for index, var in pairs(vars) do
+                            if type(var) == "string" then
+                                var = "'" .. var .. "'"
+                            end
+                            replaced = string.gsub(replaced, index, var)
+                        end
+                        str = str .. replaced
+                    end
+                end
+
+                local func = assert(loadstring("return " .. str))
+                if func() then
+                    e.Animator.currentState = v.to
+                    local AnimCurrentState = e.Animator.states[e.Animator.currentState]
+                    e.ComplexSpriteRenderer.speed = AnimCurrentState.speed
+                    e.ComplexSpriteRenderer.index = AnimCurrentState.spritesheet
+                    e.ComplexSpriteRenderer.frame = 0
+                    e.ComplexSpriteRenderer.quads = {}
+                    local sprite = spritesheetIndex[e.ComplexSpriteRenderer.index]
+                    e.ComplexSpriteRenderer.spritesheet = love.graphics.newImage(SPRITES_PATH .. sprite.path)
+                    local no_col = e.ComplexSpriteRenderer.spritesheet:getWidth() / sprite.size.x
+                    for i=1, sprite.frames, 1 do
+                        e.ComplexSpriteRenderer.quads[i] = love.graphics.newQuad(
+                            ((i-1) % no_col) * sprite.size.x + (math.max((i-2),0) % no_col) * sprite.padding.x,
+                            math.floor((i-1) / no_col) * sprite.size.y + math.floor(math.max((i-2),0) / no_col) * sprite.padding.y,
+                            sprite.size.x,
+                            sprite.size.y,
+                            e.ComplexSpriteRenderer.spritesheet:getWidth(),
+                            e.ComplexSpriteRenderer.spritesheet:getHeight()
+                        )
+                    end
+                end
+            end
+        end
     end
 
 end
@@ -166,10 +238,7 @@ function RenderSystem:draw()
     end
 
     for _,e in ipairs(self.complexSpritePool) do
-        log.info(inspect(e.ComplexSpriteRenderer.quads))
         love.graphics.draw(e.ComplexSpriteRenderer.spritesheet, e.ComplexSpriteRenderer.quads[math.floor(e.ComplexSpriteRenderer.frame)+1], e.Position.x, e.Position.y)
     end
 
 end
-
-
