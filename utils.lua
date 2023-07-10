@@ -5,6 +5,7 @@ require("constants")
 Vector = {}
 List = {}
 States = {}
+Color = {}
 math.easingFunctions = {}
 
 function math.clamp(x, min, max)
@@ -52,6 +53,10 @@ function List.combineLists(t1, t2)
         t3[i] = t2[i-#t3]
     end
     return t3
+end
+
+function Color.fromRGB(red, blue, green, alpha)
+    return {red/255, blue/255, green/255, alpha/255}
 end
 
 function Vector.normalize(vec)

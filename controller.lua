@@ -3,6 +3,9 @@ local inspect = require("libs.inspect").inspect
 local log = require("libs.log")
 local controls = require("controls")
 
+require "utils"
+require "assemblages"
+
 -- COMPONENTS
 
 --[[
@@ -11,10 +14,8 @@ local controls = require("controls")
 concord.component(
     "Controllable",
 
-    function(component, hp)
-
-        component.hp = hp or 100
-        
+    function(component)
+        component.vars = {}
     end
 )
 
@@ -22,7 +23,8 @@ concord.component(
 -- SYSTEMS
 InputSystem = concord.system {
     enablePool = { "Controllable" },
-    movePool = { "Controllable", "Movable"}
+    movePool = { "Controllable", "Movable"},
+    shootPool = { "Controllable",  "Stats", "Information"}
 }
 
 
@@ -61,6 +63,19 @@ function InputSystem:update(dt)
             x = (math.toBool(movDir.x) and (movDir.x * maxVel.x) or e.Movable.vel.x),
             y = (math.toBool(movDir.y) and (movDir.y * maxVel.y) or e.Movable.vel.y)
         }
+    end
+
+    for _,e in ipairs(self.shootPool) do
+        
+        e.Controllable.vars.timeElapsed = e.Controllable.vars.timeElapsed or 0
+        if e.Controllable.vars.timeElapsed > 0 then
+            e.Controllable.vars.timeElapsed = e.Controllable.vars.timeElapsed - dt
+        end
+        if (e.Controllable.shoot and e.Controllable.vars.timeElapsed <= 0) then
+            log.info("Pew!")
+            concord.entity(e:getWorld()):assemble(SimpleProjectile, e, {x=0,y=20}, {x=0,y=-1000}, 5, Color.fromRGB(224, 183, 16, 255), "fill")
+            e.Controllable.vars.timeElapsed = 0.5
+        end
     end
 
 end

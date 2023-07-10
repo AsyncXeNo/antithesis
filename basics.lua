@@ -35,7 +35,8 @@ concord.component(
             maxHp = hp,
             armor = armor,
             armor_pen = armor_pen,
-            maxShield = shield
+            maxShield = shield,
+            regen = regen
         }
 
     end
@@ -113,7 +114,7 @@ function MovementSystem:update(dt)
         else
             e.Movable.vel.y = newVelFriction.y
         end
-
+        
         e.Position.x = e.Position.x + e.Movable.vel.x * dt
         e.Position.y = e.Position.y + e.Movable.vel.y * dt
 
