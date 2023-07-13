@@ -24,7 +24,8 @@ concord.component(
 InputSystem = concord.system {
     enablePool = { "Controllable" },
     movePool = { "Controllable", "Movable"},
-    shootPool = { "Controllable",  "Stats", "Information"}
+    shootPool = { "Controllable",  "Stats", "Information"},
+    metaPool = { "Controllable", "Player"},
 }
 
 
@@ -74,8 +75,14 @@ function InputSystem:update(dt)
         if (e.Controllable.shoot and e.Controllable.vars.timeElapsed <= 0) then
             log.info("Pew!")
             concord.entity(e:getWorld()):assemble(SimpleProjectile, e, {x=0,y=20}, {x=0,y=-1000}, 5, Color.fromRGB(224, 183, 16, 255), "fill")
-            e.Controllable.vars.timeElapsed = 0.5
+            e.Controllable.vars.timeElapsed = 0.3
         end
+    end
+
+    for _,e in ipairs(self.metaPool) do
+
+        e.Player.extendedHUD = e.Controllable.extendHUD
+        
     end
 
 end

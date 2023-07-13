@@ -7,6 +7,16 @@ require("utils")
 -- COMPONENTS
 
 --[[
+    Player
+]]
+concord.component(
+    "Player",
+    function(component) 
+        component.extendedHUD = false
+    end
+)
+
+--[[
     Name
 ]]
 concord.component(
@@ -75,6 +85,10 @@ concord.component(
 
 -- SYSTEMS
 
+--[[
+    Movement System
+]]
+
 MovementSystem = concord.system {
     pool = { "Position", "Movable" }
 }
@@ -120,4 +134,25 @@ function MovementSystem:update(dt)
 
     end
 
+end
+
+--[[
+    Stats System
+]]
+
+StatsSystem = concord.system{
+    pool = { "Stats" }
+}
+
+function StatsSystem:update(dt)
+    for _, e in ipairs(self.pool) do
+        if e.Stats.current.hp <= 0 then
+            if e.Information and e.Information.name == "Player" then
+                log.error("Lol, player not found, game don't work. Git gud")
+            end
+            e:destroy()
+        end
+        
+        e.Stats.current.shield = math.min(e.Stats.current.shield + e.Stats.current.regen * dt, e.Stats.current.maxShield)
+    end
 end

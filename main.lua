@@ -2,17 +2,24 @@ local concord = require "libs.Concord";
 local push = require "libs.push";
 local log = require "libs.log";
 
-require "basics"
-require "graphics"
-require "physics"
-require "controller"
-require "text"
-require "levels"
+require "modules.game.basics"
+require "modules.game.graphics"
+require "modules.game.physics"
+require "modules.game.controller"
+require "modules.game.ui"
+require "modules.game.levels"
 
 local spriteSheet = require "res.spritesheets"
 local anims = require "res.anims"
 
-World = concord.world()
+GameState = {
+    game = concord.world(),
+    main_menu = concord.world(),
+    pause_menu = concord.world(),
+    game_over = concord.world()
+}
+
+CurrentGameState = "game"
 
 function love.load()
 
@@ -23,9 +30,9 @@ function love.load()
     push:setupScreen(1024, 576, 1920, 1080, {upscale = "normal"})
 
     log.info("Started")
-    World:addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem):addSystem(CollisionSystem):addSystem(MessageBoxSystem):addSystem(TimelineSystem)
+    GameState.game:addSystem(HUDSystem):addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem):addSystem(CollisionSystem):addSystem(MessageBoxSystem):addSystem(TimelineSystem):addSystem(StatsSystem)
 
-    local player = concord.entity(World)
+    local player = concord.entity(GameState.game)
         :give("Information", "Player")
         :give("Position", 300, 300)
         :give("ComplexSpriteRenderer", "monster", 1)
@@ -34,10 +41,12 @@ function love.load()
         :give("Controllable", 100)
         :give("Collider", "BOX", {width=32, height=32}, {x=0, y=0})
         :give("Stats", 10, 100, 10, 1, 0, 0)
+        :give("Player")
 
-    local obj = concord.entity(World)
+    local obj = concord.entity(GameState.game)
         :give("Position", 1024, 0)
         :give ("CircleRenderer", 10, {0,0,1,1} )
+        :give ("Stats", 10, 100, 10, 1, 0, 0)
         :give("Timeline", {
             {
                 type = "move",
@@ -51,9 +60,20 @@ function love.load()
                 }
             },
             {
-                type = "wait",
+                type = "shoot",
                 args = {
-                    duration = 2
+                    type = "burst",
+                    bullet_type = "simple",
+                    start_angle = 30,
+                    end_angle = 60,
+                    lines = 3,
+                    speed = 100,
+                    start_radius = 20,
+                    duration = 2,
+                    interval = 0.2,
+                    radius = 5,
+                    color = Color.fromRGB(255, 0, 0, 255),
+                    mode = "fill"
                 },
             },
             {
@@ -68,30 +88,14 @@ function love.load()
                 }
             }
         })
-        :give("Collider", "CIRCLE", {r=10}, {x=0, y=0},
-            function(self, entity)
-                self:destroy()
-                concord.entity(World)
-                    :give("Position", 300, 300)
-                    :give("MessageBox", {{1, 0.12, 0.44, 1}, "Hello World"})
-                concord.entity(World)
-                    :give("Position", 200, 300)
-                    :give("ComplexSpriteRenderer", "monster", 0)
-                    :give("Animator", States.table({
-                        ["idle"] = {
-                            ["spritesheet"] = "monster",
-                            ["speed"] = 1,
-                        }
-                    }, "idle"), {}, {})
-            end
-        )
+        :give("Collider", "CIRCLE", {r=10})
 
-    World:emit("init", World)
+    GameState[CurrentGameState]:emit("init", GameState[CurrentGameState])
 
 end
 
 
-function World:onEntityAdded(entity)
+function GameState.game:onEntityAdded(entity)
 
     if entity.ComplexSpriteRenderer and entity.Animator then
         local complexSprite = entity.ComplexSpriteRenderer
@@ -114,8 +118,18 @@ function World:onEntityAdded(entity)
                 complexSprite.spritesheet:getHeight()
             )
         end
-        
-        log.info("New entity")
+    end
+
+    if entity.Stats then
+        entity.Stats.current = {
+            damage = entity.Stats.base.damage,
+            hp = entity.Stats.base.maxHp,
+            armor = entity.Stats.base.armor,
+            armor_pen = entity.Stats.base.armor_pen,
+            maxShield = entity.Stats.base.maxShield,
+            shield = entity.Stats.base.maxShield,
+            regen = entity.Stats.base.regen
+        }
     end
 
 end
@@ -123,7 +137,7 @@ end
 
 function love.update(dt)
 
-    World:emit("update", dt)
+    GameState[CurrentGameState]:emit("update", dt)
 
 end
 
@@ -140,7 +154,7 @@ end
 function love.draw()
 
     push:start()
-    World:emit("draw")
+    GameState[CurrentGameState]:emit("draw")
     push:finish()
 
 end

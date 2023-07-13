@@ -1,7 +1,9 @@
 # Todo List
 
-## Animator
+## Finish HUD System [modules/game.ui.lua](modules/game/ui.lua)
 
-### Finish implementing TimelineSystem
+- Draw HP
+- Draw Shield
+- Draw armor, armor_pen and damage values
 
-- Shoot
+## Make Main Menu

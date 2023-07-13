@@ -29,15 +29,17 @@ local function getProjectileCollidingFunction(parent)
         end
 
         --Player = true, Enemy = false
-        local myTeam = parent.Information ~= nil and parent.Information.name == "Player"
-        local otherTeam = other.Information ~= nil and other.Information.name == "Player"
+        local myTeam = parent.Player ~= nil
+        local otherTeam = other.Player ~= nil
 
+        -- myTeam <=/=> otherTeam
         if myTeam ~= otherTeam then
             other.Stats.current.hp = other.Stats.current.hp - parent.Stats.current.damage
+            self:destroy()
         end
 
     end
-    
+
 end
 
 
@@ -52,9 +54,9 @@ function SimpleProjectile(entity, parent, offset, velocity, radius, color, mode)
 end
 
 
-function FancyProjectile(entity, parent, offset, velocity, sprite)
+function FancyProjectile(entity, parent, offset, velocity, index, speed)
     projectileBase(entity, parent, offset, velocity)
-    :give("SimpleSpriteRenderer", sprite)
+    :give("ComplexSpriteRenderer", index, speed)
     :give(
         "Collider",
         "CIRCLE",

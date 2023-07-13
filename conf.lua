@@ -1,3 +1,5 @@
+require "constants"
+
 function love.conf(t)
     t.identity = nil                    -- The name of the save directory (string)
     t.appendidentity = false            -- Search files in source directory before save directory (boolean)
@@ -12,8 +14,8 @@ function love.conf(t)
 
     t.window.title = "Antithesis"       -- The window title (string)
     t.window.icon = nil                 -- Filepath to an image to use as the window's icon (string)
-    t.window.width = 1920               -- The window width (number)
-    t.window.height = 1080              -- The window height (number)
+    t.window.width = DEF_WINDOW_WIDTH       -- The window width (number)
+    t.window.height = DEF_WINDOW_HEIGHT     -- The window height (number)
     t.window.borderless = false         -- Remove all border visuals from the window (boolean)
     t.window.resizable = false          -- Let the window be user-resizable (boolean)
     t.window.minwidth = 1               -- Minimum window width if the window is resizable (number)

@@ -57,7 +57,7 @@ function MessageBoxSystem:update(dt)
     end
 end
 
-function  MessageBoxSystem:draw()
+function MessageBoxSystem:draw()
     for _, e in ipairs(self.pool) do
         love.graphics.setColor(0,0,0, e.MessageBox.alpha)
         love.graphics.rectangle(
@@ -91,5 +91,47 @@ function  MessageBoxSystem:draw()
             e.MessageBox.size.width,
             "center"
         )
+    end
+end
+
+
+--[[
+    HUD System
+]]
+
+
+HUDSystem = concord.system {
+    pool = {"Player"}
+}
+
+function HUDSystem:update(dt)
+    
+end
+
+function HUDSystem:draw()
+    for _,e in ipairs(self.pool) do
+        if e.Player.extendedHUD then
+            love.graphics.setColor(Color.fromRGB(unpack(HUD.color.outer)))
+            love.graphics.setLineWidth(3)
+            love.graphics.rectangle("line",
+                HUD.start_box.x,
+                HUD.start_box.y,
+                HUD.box_more.x,
+                HUD.box_more.y
+            )
+            love.graphics.setLineWidth(1)
+            love.graphics.setColor(1, 1, 1, 1)
+        else
+            love.graphics.setColor(Color.fromRGB(unpack(HUD.color.outer)))
+            love.graphics.setLineWidth(3)
+            love.graphics.rectangle("line",
+                HUD.start_box.x,
+                HUD.start_box.y,
+                HUD.box_normal.x,
+                HUD.box_normal.y
+            )
+            love.graphics.setLineWidth(1)
+            love.graphics.setColor(1, 1, 1, 1)
+        end
     end
 end
