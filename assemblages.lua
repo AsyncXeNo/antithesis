@@ -34,7 +34,11 @@ local function getProjectileCollidingFunction(parent)
 
         -- myTeam <=/=> otherTeam
         if myTeam ~= otherTeam then
-            other.Stats.current.hp = other.Stats.current.hp - parent.Stats.current.damage
+            if other.Stats.current.shield > 0 then
+                other.Stats.current.shield = math.max(other.Stats.current.shield - parent.Stats.current.damage,0)
+            else
+                other.Stats.current.hp = other.Stats.current.hp - parent.Stats.current.damage
+            end    
             self:destroy()
         end
 

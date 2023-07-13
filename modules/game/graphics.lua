@@ -3,7 +3,7 @@ local log = require "libs.log"
 local inspect = require ("libs.inspect")
 require "constants"
 local spritesheetIndex = require "res.spritesheets"
-
+local sprites = require "res.sprites"
 -- COMPONENTS
 
 --[[
@@ -103,12 +103,17 @@ concord.component(
 )
 
 --[[
-    Point Renderer
+    Particles
 ]]
 concord.component(
-    "PointRenderer",
+    "Particles",
 
-    function(component) end
+    function(component, texture, buffer, config_func, fizzle_out, duration)
+        component.system = love.graphics.newParticleSystem(love.graphics.newImage(SPRITES_PATH .. sprites[texture].path), buffer)
+        config_func(component.system)
+        component.fizzle_out = fizzle_out
+        component.duration = duration
+    end
 )
 
 --SYSTEMS
@@ -241,4 +246,29 @@ function RenderSystem:draw()
         love.graphics.draw(e.ComplexSpriteRenderer.spritesheet, e.ComplexSpriteRenderer.quads[math.floor(e.ComplexSpriteRenderer.frame)+1], e.Position.x, e.Position.y)
     end
 
+end
+
+ParticleSystem = concord.system {
+    pool = {"Particles", "Position"}
+}
+
+function ParticleSystem:update(dt)
+    for _,e in ipairs(self.pool) do
+        if e.Particles.fizzle_out <= 0 then
+            e.Particles.system:setEmissionRate(0)
+        end
+        if e.Particles.duration <= 0 then
+            e:destroy()
+            return
+        end
+        e.Particles.duration = e.Particles.duration - dt
+        e.Particles.fizzle_out = e.Particles.fizzle_out - dt
+        e.Particles.system:update(dt)
+    end
+end
+
+function ParticleSystem:draw()
+    for _,e in ipairs(self.pool) do
+        love.graphics.draw(e.Particles.system, e.Position.x, e.Position.y)
+    end
 end

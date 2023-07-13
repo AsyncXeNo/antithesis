@@ -58,7 +58,7 @@ function InputSystem:update(dt)
             x = e.Movable.maxVel.x - math.toNumber(e.Controllable.precision) * (e.Movable.maxVel.x / 2),
             y = e.Movable.maxVel.y - math.toNumber(e.Controllable.precision) * (e.Movable.maxVel.y / 2)
         }
-        
+
         -- log.info(inspect(maxVel))
         e.Movable.vel = {
             x = (math.toBool(movDir.x) and (movDir.x * maxVel.x) or e.Movable.vel.x),

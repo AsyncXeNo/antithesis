@@ -10,6 +10,7 @@ require "modules.game.ui"
 require "modules.game.levels"
 
 local spriteSheet = require "res.spritesheets"
+local sprites = require "res.sprites"
 local anims = require "res.anims"
 
 GameState = {
@@ -30,7 +31,7 @@ function love.load()
     push:setupScreen(1024, 576, 1920, 1080, {upscale = "normal"})
 
     log.info("Started")
-    GameState.game:addSystem(HUDSystem):addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem):addSystem(CollisionSystem):addSystem(MessageBoxSystem):addSystem(TimelineSystem):addSystem(StatsSystem)
+    GameState.game:addSystem(HUDSystem):addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem):addSystem(CollisionSystem):addSystem(MessageBoxSystem):addSystem(TimelineSystem):addSystem(StatsSystem):addSystem(ParticleSystem)
 
     local player = concord.entity(GameState.game)
         :give("Information", "Player")
@@ -55,7 +56,7 @@ function love.load()
                         x = 500,
                         y = 300
                     },
-                    duration = 5,
+                    duration = 2,
                     func = math.easingFunctions.easeInOutQuint
                 }
             },

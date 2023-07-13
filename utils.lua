@@ -56,7 +56,9 @@ function List.combineLists(t1, t2)
 end
 
 function Color.fromRGB(red, blue, green, alpha)
+
     return {red/255, blue/255, green/255, alpha/255}
+
 end
 
 function Vector.normalize(vec)

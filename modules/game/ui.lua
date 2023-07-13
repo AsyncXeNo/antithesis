@@ -1,7 +1,14 @@
 local concord = require "libs.Concord"
 local inspect = require("libs.inspect").inspect
 local log = require "libs.log"
+
+local sprites = require "res.sprites"
+
 require "constants"
+require "utils"
+
+require "libs.gradient"
+
 
 -- COMPONENTS
 
@@ -110,27 +117,108 @@ end
 
 function HUDSystem:draw()
     for _,e in ipairs(self.pool) do
+        
+        --[[
+            HP BAR
+        ]]
+
+        local start_hp = HUD.start_hp_box
+        local stat_size = HUD.stat_box
+        
+        local hp_mul = (e.Stats.current.hp / e.Stats.base.maxHp)
+
+        love.gradient.draw(
+            function()
+                love.graphics.rectangle(
+                    "fill",
+                    start_hp.x,
+                    start_hp.y,
+                    stat_size.x * hp_mul,
+                    stat_size.y
+                )
+            end,
+            "linear",
+            start_hp.x + (stat_size.x * hp_mul) / 2,
+            start_hp.y + (stat_size.y) / 2,
+            (stat_size.x * hp_mul) / 2,
+            stat_size.y / 2,
+            Color.fromRGB(unpack(HUD.color.hp.start_col)),
+            Color.fromRGB(unpack(HUD.color.hp.end_col))
+        )
+
+        love.graphics.setColor(1,1,1,1)
+
+        local hp_bar = love.graphics.newImage(SPRITES_PATH .. sprites['hp_bar'].path)
+
+        local x_diff = math.abs(stat_size.x - hp_bar:getWidth())
+        local y_diff = math.abs(stat_size.y - hp_bar:getHeight())
+        
+        love.graphics.draw(hp_bar, HUD.start_hp_box.x - x_diff , HUD.start_hp_box.y - y_diff/2)
+
+        love.graphics.setLineWidth(1)
+
+        --[[
+            SHIELD BAR
+        ]]
+
+        local start_shield = HUD.start_shield_box
+        
+        local shield_mul = (e.Stats.current.shield / e.Stats.current.maxShield)
+
+        love.gradient.draw(
+            function()
+                love.graphics.rectangle(
+                    "fill",
+                    start_shield.x,
+                    start_shield.y,
+                    stat_size.x * shield_mul,
+                    stat_size.y
+                )
+            end,
+            "linear",
+            start_shield.x + (stat_size.x * shield_mul) / 2,
+            start_shield.y + (stat_size.y) / 2,
+            (stat_size.x * shield_mul) / 2,
+            stat_size.y / 2,
+            Color.fromRGB(unpack(HUD.color.shield.start_col)),
+            Color.fromRGB(unpack(HUD.color.shield.end_col))
+        )
+
+        love.graphics.setColor(1,1,1,1)
+
+        local shield_bar = love.graphics.newImage(SPRITES_PATH .. sprites['shield_bar'].path)
+
+        local x_diff = math.abs(stat_size.x - shield_bar:getWidth())
+        local y_diff = math.abs(stat_size.y - shield_bar:getHeight())
+
+        love.graphics.draw(shield_bar, HUD.start_shield_box.x - x_diff , HUD.start_shield_box.y - y_diff/2)
+
+        love.graphics.setLineWidth(1)
+
+        --[[
+            HUD OUTLINE
+        ]]
+            
+
         if e.Player.extendedHUD then
             love.graphics.setColor(Color.fromRGB(unpack(HUD.color.outer)))
-            love.graphics.setLineWidth(3)
+            love.graphics.setLineWidth(1)
             love.graphics.rectangle("line",
                 HUD.start_box.x,
                 HUD.start_box.y,
                 HUD.box_more.x,
                 HUD.box_more.y
             )
-            love.graphics.setLineWidth(1)
             love.graphics.setColor(1, 1, 1, 1)
         else
             love.graphics.setColor(Color.fromRGB(unpack(HUD.color.outer)))
-            love.graphics.setLineWidth(3)
+            love.graphics.setLineWidth(1)
             love.graphics.rectangle("line",
                 HUD.start_box.x,
                 HUD.start_box.y,
                 HUD.box_normal.x,
                 HUD.box_normal.y
             )
-            love.graphics.setLineWidth(1)
             love.graphics.setColor(1, 1, 1, 1)
         end
     end

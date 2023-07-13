@@ -1,8 +1,9 @@
 local concord = require "libs.Concord"
 local log = require "libs.log"
 local inspect = require("libs.inspect").inspect
-require("utils")
-
+local spritesheetIndex = require("res.spritesheets")
+local sprites = require("res.sprites")
+require "utils"
 
 -- COMPONENTS
 
@@ -48,6 +49,8 @@ concord.component(
             maxShield = shield,
             regen = regen
         }
+
+        component.vars = {}
 
     end
 )
@@ -96,6 +99,7 @@ MovementSystem = concord.system {
 function MovementSystem:update(dt)
 
     for _,e in ipairs(self.pool) do
+
         e.Movable.vel.x = math.clamp(
             e.Movable.vel.x + e.Movable.acceleration.x * dt,
             -e.Movable.maxVel.x,
@@ -128,9 +132,15 @@ function MovementSystem:update(dt)
         else
             e.Movable.vel.y = newVelFriction.y
         end
+
+        if (e.Player) then
+            e.Position.x = math.clamp(e.Position.x + e.Movable.vel.x * dt, 0, GAME_WIDTH - spritesheetIndex[e.ComplexSpriteRenderer.index].size.x)
+            e.Position.y = math.clamp(e.Position.y + e.Movable.vel.y * dt, 0, GAME_HEIGHT - spritesheetIndex[e.ComplexSpriteRenderer.index].size.y)
+        else
+            e.Position.x = e.Position.x + e.Movable.vel.x * dt
+            e.Position.y = e.Position.y + e.Movable.vel.y * dt
+        end
         
-        e.Position.x = e.Position.x + e.Movable.vel.x * dt
-        e.Position.y = e.Position.y + e.Movable.vel.y * dt
 
     end
 
@@ -146,13 +156,38 @@ StatsSystem = concord.system{
 
 function StatsSystem:update(dt)
     for _, e in ipairs(self.pool) do
+
+        if e.Stats.base.maxShield > 0 then
+            e.Stats.vars.shieldBroken = e.Stats.vars.shieldBroken or 0
+        end
+
+        if e.Stats.current.shield <= 0 then
+            e.Stats.vars.shieldBroken = SHIELD_REGEN_TIME
+        end
+        
         if e.Stats.current.hp <= 0 then
             if e.Information and e.Information.name == "Player" then
                 log.error("Lol, player not found, game don't work. Git gud")
+                concord.entity(self:getWorld())
+                :give("Position",
+                    e.Position.x + spritesheetIndex[e.ComplexSpriteRenderer.index].size.x/2,
+                    e.Position.y + spritesheetIndex[e.ComplexSpriteRenderer.index].size.y/2)
+                :give("Particles", "particle", 50, function (system)
+                    system:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
+                    system:setEmissionRate(20)
+                    system:setSizeVariation(1)
+                    system:setLinearAcceleration(-20000, -20000, 20000, 20000) -- Random movement in all directions.
+                    system:setLinearDamping(100, 100)
+                    system:setColors(1, 1, 1, 1, 1, 1, 1, 0) -- Fade to transparency.
+                end, 0.5, 4)
             end
             e:destroy()
         end
         
-        e.Stats.current.shield = math.min(e.Stats.current.shield + e.Stats.current.regen * dt, e.Stats.current.maxShield)
+        if e.Stats.vars.shieldBroken <= 0 then
+            e.Stats.current.shield = math.min(e.Stats.current.shield + e.Stats.current.regen * dt, e.Stats.current.maxShield)
+        else
+            e.Stats.vars.shieldBroken = e.Stats.vars.shieldBroken - dt
+        end
     end
 end
