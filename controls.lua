@@ -6,7 +6,7 @@ local controls = {
     ["action"] = {["x"] = true},
     ["shoot"] = {["space"] = true},
     ["precision"] = {["lshift"] = true},
-    ["extendHUD"] = {["lctrl"] = true}
+    ["pause"] = {["p"] = true}
 }
 
 return controls

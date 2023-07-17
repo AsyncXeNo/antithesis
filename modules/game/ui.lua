@@ -200,26 +200,14 @@ function HUDSystem:draw()
         ]]
             
 
-        if e.Player.extendedHUD then
-            love.graphics.setColor(Color.fromRGB(unpack(HUD.color.outer)))
-            love.graphics.setLineWidth(1)
-            love.graphics.rectangle("line",
-                HUD.start_box.x,
-                HUD.start_box.y,
-                HUD.box_more.x,
-                HUD.box_more.y
-            )
-            love.graphics.setColor(1, 1, 1, 1)
-        else
-            love.graphics.setColor(Color.fromRGB(unpack(HUD.color.outer)))
-            love.graphics.setLineWidth(1)
-            love.graphics.rectangle("line",
-                HUD.start_box.x,
-                HUD.start_box.y,
-                HUD.box_normal.x,
-                HUD.box_normal.y
-            )
-            love.graphics.setColor(1, 1, 1, 1)
-        end
+        love.graphics.setColor(Color.fromRGB(unpack(HUD.color.outer)))
+        love.graphics.setLineWidth(1)
+        love.graphics.rectangle("line",
+            HUD.start_box.x,
+            HUD.start_box.y,
+            HUD.box_normal.x,
+            HUD.box_normal.y
+        )
+        love.graphics.setColor(1, 1, 1, 1)
     end
 end

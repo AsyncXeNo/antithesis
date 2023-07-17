@@ -37,11 +37,6 @@ HUD = {
         y = 0.20 * GAME_HEIGHT,
     },
 
-    box_more = {
-        x = 0.21 * GAME_WIDTH,
-        y = 0.25 * GAME_HEIGHT,
-    },
-
     color = {
         outer = {50, 50, 50, 255},
         hp_box = {50, 30, 30, 255},
@@ -55,6 +50,15 @@ HUD = {
             start_col = {13, 115, 119, 255},
             end_col = {20, 255, 236, 255}
         },
+    }
+
+}
+
+MENU = {
+
+    box = {
+        x = 0.3 * GAME_WIDTH,
+        y = 0.3 * GAME_HEIGHT
     }
 
 }

@@ -16,6 +16,8 @@ concord.component(
 
     function(component)
         component.vars = {}
+        component.held = {}
+        component.pressed = {}
     end
 )
 
@@ -26,7 +28,22 @@ InputSystem = concord.system {
     movePool = { "Controllable", "Movable"},
     shootPool = { "Controllable",  "Stats", "Information"},
     metaPool = { "Controllable", "Player"},
+    otherScreenPool = { "Controllable", "Background" }
 }
+
+
+function InputSystem:keypressed(pressed, scancode, isrepeat)
+    for _,e in ipairs(self.enablePool) do
+
+        for k,v in pairs(controls) do
+            for key,enabled in pairs(v) do
+                if (key == pressed) and enabled then
+                    e.Controllable.pressed[k] = true
+                end
+            end
+        end
+    end
+end
 
 
 function InputSystem:update(dt)
@@ -39,24 +56,24 @@ function InputSystem:update(dt)
                if love.keyboard.isDown(key) then
                     flag = enabled
                     break
-               end 
+               end
             end
-            e.Controllable[k] = flag
+            e.Controllable.held[k] = flag
         end
     end
 
     for _,e in ipairs(self.movePool) do
         -- log.info(math.toNumber(e.Controllable.moveRight) - math.toNumber(e.Controllable.moveLeft))
         local movDir = {
-            x = math.toNumber(e.Controllable.moveRight) - math.toNumber(e.Controllable.moveLeft),
-            y = math.toNumber(e.Controllable.moveDown) - math.toNumber(e.Controllable.moveUp)
+            x = math.toNumber(e.Controllable.held.moveRight) - math.toNumber(e.Controllable.held.moveLeft),
+            y = math.toNumber(e.Controllable.held.moveDown) - math.toNumber(e.Controllable.held.moveUp)
         }
         -- log.info(inspect(movDir))
         movDir = Vector.normalize(movDir)
 
         local maxVel = {
-            x = e.Movable.maxVel.x - math.toNumber(e.Controllable.precision) * (e.Movable.maxVel.x / 2),
-            y = e.Movable.maxVel.y - math.toNumber(e.Controllable.precision) * (e.Movable.maxVel.y / 2)
+            x = e.Movable.maxVel.x - math.toNumber(e.Controllable.held.precision) * (e.Movable.maxVel.x / 2),
+            y = e.Movable.maxVel.y - math.toNumber(e.Controllable.held.precision) * (e.Movable.maxVel.y / 2)
         }
 
         -- log.info(inspect(maxVel))
@@ -72,7 +89,7 @@ function InputSystem:update(dt)
         if e.Controllable.vars.timeElapsed > 0 then
             e.Controllable.vars.timeElapsed = e.Controllable.vars.timeElapsed - dt
         end
-        if (e.Controllable.shoot and e.Controllable.vars.timeElapsed <= 0) then
+        if (e.Controllable.held.shoot and e.Controllable.vars.timeElapsed <= 0) then
             log.info("Pew!")
             concord.entity(e:getWorld()):assemble(SimpleProjectile, e, {x=0,y=20}, {x=0,y=-1000}, 5, Color.fromRGB(224, 183, 16, 255), "fill")
             e.Controllable.vars.timeElapsed = 0.3
@@ -81,8 +98,38 @@ function InputSystem:update(dt)
 
     for _,e in ipairs(self.metaPool) do
 
-        e.Player.extendedHUD = e.Controllable.extendHUD
+        if (e.Controllable.pressed.pause) then
+
+            love.graphics.captureScreenshot( function (image)
+                
+                concord.entity(GameState.pause_menu)
+                    :give("Background", love.graphics.newImage(image), 0.6)
+                    :give("Controllable")
+                CurrentGameState = "pause_menu"
+                log.debug("switching to pause menu")
+                
+            end)
+
+            e.Controllable.pressed.pause = nil
+
+        end
+
+    end
+
+    for _, e in ipairs(self.otherScreenPool) do
         
+        if (e.Controllable.pressed.pause) then
+            
+            if (CurrentGameState == "pause_menu") then
+                
+                GameState.pause_menu:clear()
+                CurrentGameState = "game"
+                log.debug("switching back to game")
+
+            end
+            e.Controllable.pressed.pause = nil
+        end
+
     end
 
 end

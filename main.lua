@@ -2,25 +2,14 @@ local concord = require "libs.Concord";
 local push = require "libs.push";
 local log = require "libs.log";
 
-require "modules.game.basics"
-require "modules.game.graphics"
-require "modules.game.physics"
-require "modules.game.controller"
-require "modules.game.ui"
-require "modules.game.levels"
+require "modules.graphics"
+require "modules.game"
+require "modules.controller"
+require "global_vars"
 
 local spriteSheet = require "res.spritesheets"
 local sprites = require "res.sprites"
 local anims = require "res.anims"
-
-GameState = {
-    game = concord.world(),
-    main_menu = concord.world(),
-    pause_menu = concord.world(),
-    game_over = concord.world()
-}
-
-CurrentGameState = "game"
 
 function love.load()
 
@@ -29,9 +18,24 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.window.setMode(gameWidth, gameHeight)
     push:setupScreen(1024, 576, 1920, 1080, {upscale = "normal"})
-
     log.info("Started")
-    GameState.game:addSystem(HUDSystem):addSystem(RenderSystem):addSystem(InputSystem):addSystem(MovementSystem):addSystem(CollisionSystem):addSystem(MessageBoxSystem):addSystem(TimelineSystem):addSystem(StatsSystem):addSystem(ParticleSystem)
+    
+    -- GAME STATE INITS
+
+    --[[
+        GAME
+    ]]
+
+    GameState.game
+        :addSystem(HUDSystem)
+        :addSystem(RenderSystem)
+        :addSystem(InputSystem)
+        :addSystem(MovementSystem)
+        :addSystem(CollisionSystem)
+        :addSystem(MessageBoxSystem)
+        :addSystem(TimelineSystem)
+        :addSystem(StatsSystem)
+        :addSystem(ParticleSystem)
 
     local player = concord.entity(GameState.game)
         :give("Information", "Player")
@@ -91,6 +95,23 @@ function love.load()
         })
         :give("Collider", "CIRCLE", {r=10})
 
+    --[[
+        GAME OVER
+    ]]
+    
+    GameState.game_over:addSystem(MessageBoxSystem, BackgroundSystem)
+
+    --[[
+        PAUSE MENU
+    ]]
+
+    GameState.pause_menu:addSystem(BackgroundSystem):addSystem(InputSystem)
+
+    local only_pause = concord.entity(GameState.pause_menu):give("Background", love.graphics.newCanvas(GAME_WIDTH, GAME_HEIGHT))
+
+
+    --
+    
     GameState[CurrentGameState]:emit("init", GameState[CurrentGameState])
 
 end
@@ -135,7 +156,6 @@ function GameState.game:onEntityAdded(entity)
 
 end
 
-
 function love.update(dt)
 
     GameState[CurrentGameState]:emit("update", dt)
@@ -146,9 +166,11 @@ end
 function love.keypressed(key, scancode, isrepeat)
 
     if key == 'escape' then
+        --TODO: Confirmation Menu
         love.event.quit()
     end
 
+    GameState[CurrentGameState]:emit("keypressed", key, scancode, isrepeat)
 end
 
 

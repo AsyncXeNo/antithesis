@@ -11,3 +11,4 @@
 ## If we have time
 
 - Represent current bullet info
+- Confirmation Menu when quitting

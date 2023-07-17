@@ -157,13 +157,23 @@ StatsSystem = concord.system{
 function StatsSystem:update(dt)
     for _, e in ipairs(self.pool) do
 
-        if e.Stats.base.maxShield > 0 then
+        if e.Stats.current.maxShield > 0 then
             e.Stats.vars.shieldBroken = e.Stats.vars.shieldBroken or 0
         end
+        
 
-        if e.Stats.current.shield <= 0 then
+
+        if e.Stats.current.shield <= 0 and e.Stats.vars.shieldBroken <= 0 then
             e.Stats.vars.shieldBroken = SHIELD_REGEN_TIME
+        elseif e.Stats.vars.shieldBroken <= 0 then
+            e.Stats.current.shield = math.min(e.Stats.current.shield + e.Stats.current.regen * dt, e.Stats.current.maxShield)
+        else
+            e.Stats.vars.shieldBroken = e.Stats.vars.shieldBroken - dt
+            if e.Stats.vars.shieldBroken <= 0 then
+                e.Stats.current.shield = math.min(e.Stats.current.shield + e.Stats.current.regen * dt, e.Stats.current.maxShield)
+            end
         end
+
         
         if e.Stats.current.hp <= 0 then
             if e.Information and e.Information.name == "Player" then
@@ -184,10 +194,5 @@ function StatsSystem:update(dt)
             e:destroy()
         end
         
-        if e.Stats.vars.shieldBroken <= 0 then
-            e.Stats.current.shield = math.min(e.Stats.current.shield + e.Stats.current.regen * dt, e.Stats.current.maxShield)
-        else
-            e.Stats.vars.shieldBroken = e.Stats.vars.shieldBroken - dt
-        end
     end
 end

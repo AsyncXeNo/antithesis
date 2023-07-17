@@ -1,0 +1,5 @@
+require "modules.game.basics"
+require "modules.game.graphics"
+require "modules.game.levels"
+require "modules.game.physics"
+require "modules.game.ui"
