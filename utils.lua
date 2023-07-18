@@ -6,6 +6,7 @@ Vector = {}
 List = {}
 States = {}
 Color = {}
+Table = {}
 math.easingFunctions = {}
 
 function math.clamp(x, min, max)
@@ -80,4 +81,12 @@ end
 function States.table(tab, state)
     tab[ENTRY_STATE] = state
     return tab
+end
+
+function Table.len(tab)
+    local count = 0
+    for _ in pairs(tab) do
+        count = count + 1
+    end
+    return count
 end

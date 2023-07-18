@@ -4,6 +4,7 @@ local log = require "libs.log";
 
 require "modules.graphics"
 require "modules.game"
+require "modules.ui"
 require "modules.controller"
 require "global_vars"
 
@@ -105,13 +106,39 @@ function love.load()
         PAUSE MENU
     ]]
 
-    GameState.pause_menu:addSystem(BackgroundSystem):addSystem(InputSystem)
+    GameState.pause_menu
+        :addSystem(BackgroundSystem)
+        :addSystem(InputSystem)
+        :addSystem(MenuSystem)
+
+    --[[
+        MAIN MENU
+    ]]
+
+    GameState.main_menu
+        :addSystem(BackgroundSystem)
+        :addSystem(InputSystem)
+        :addSystem(MenuSystem)
+
+    concord.entity(GameState.main_menu)
+        :give("Background")
+        :give("Controllable")
+        :give("Menu", {
+            {name = "Continue", value = function() 
+                CurrentGameState = "game"
+            end},
+            {name = "New Game", value = function()
+                CurrentGameState = "game"
+            end},
+            {name = "Options", value = function () end},
+            {name = "Exit", value = function() love.event.quit() end}
+        }, {1})
 
     local only_pause = concord.entity(GameState.pause_menu):give("Background", love.graphics.newCanvas(GAME_WIDTH, GAME_HEIGHT))
 
 
-    --
-    
+    -- END
+
     GameState[CurrentGameState]:emit("init", GameState[CurrentGameState])
 
 end
@@ -165,10 +192,10 @@ end
 
 function love.keypressed(key, scancode, isrepeat)
 
-    if key == 'escape' then
-        --TODO: Confirmation Menu
-        love.event.quit()
-    end
+    -- if key == 'escape' then
+    --     --TODO: Confirmation Menu
+    --     love.event.quit()
+    -- end
 
     GameState[CurrentGameState]:emit("keypressed", key, scancode, isrepeat)
 end

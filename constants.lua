@@ -56,9 +56,12 @@ HUD = {
 
 MENU = {
 
-    box = {
-        x = 0.3 * GAME_WIDTH,
-        y = 0.3 * GAME_HEIGHT
-    }
+    option_box = {
+        width = 0.2 * GAME_WIDTH,
+        start_padding = 0.07 * GAME_WIDTH,
+        in_between = 0.05 * GAME_HEIGHT,
+    },
+
+    font_size = 14
 
 }

@@ -105,6 +105,15 @@ function InputSystem:update(dt)
                 concord.entity(GameState.pause_menu)
                     :give("Background", love.graphics.newImage(image), 0.6)
                     :give("Controllable")
+                    :give("Menu", {
+                        {name = "Continue", value = function() log.info("Continuing, supposedly...") end},
+                        {name = "Options", value = function() log.info("OPTIONS") end},
+                        {name = "Main Menu", value = function() log.info("Does not exist...") end},
+                        {name = "Exit", value = function()
+                            love.event.quit()
+                        end},
+                    }, {2})
+                    
                 CurrentGameState = "pause_menu"
                 log.debug("switching to pause menu")
                 

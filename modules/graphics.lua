@@ -12,7 +12,7 @@ concord.component(
     "Background",
 
     function (component, image, alpha, bg_mix)
-        component.image = image
+        component.image = image or love.graphics.newCanvas(GAME_WIDTH, GAME_HEIGHT)
         component.alpha = alpha or 0.9
         component.bg_mix = bg_mix or { 0, 0, 0, 1 }
     end

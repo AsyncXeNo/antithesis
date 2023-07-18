@@ -6,11 +6,11 @@
 
 ```lua
 {
-    ["Menu Item 1"] = <type: function>,
-    ["Menu Item 2"] = {
-        "Sub Menu Item 1" = <type: function>,
+    {name = ["Menu Item 1"], value = <type: function>},
+    {name = ["Menu Item 2"], value = {
+        {name = "Sub Menu Item 1", value = <type: function>},
         ...
-    },
+    }},
     ...
 }
 ```

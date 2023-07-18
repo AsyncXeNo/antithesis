@@ -7,4 +7,4 @@ GameState = {
     game_over = concord.world()
 }
 
-CurrentGameState = "game"
+CurrentGameState = "main_menu"
