@@ -8,7 +8,11 @@
 
 ## Make Main Menu
 
-- [x] Continue [modules/ui.lua](modules/ui.lua)
+- [ ] Implement clearing of screen and resetting level when going to main menu from game
+
+## Timeline
+
+- [ ] Implement
 
 ## If we have time
 

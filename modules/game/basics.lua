@@ -13,7 +13,17 @@ require "utils"
 concord.component(
     "Player",
     function(component) 
-        component.extendedHUD = false
+        
+    end
+)
+
+--[[
+    Spawner
+]]
+concord.component(
+    "Spawner",
+    function(component)
+
     end
 )
 
@@ -195,4 +205,24 @@ function StatsSystem:update(dt)
         end
         
     end
+end
+
+--[[
+    Information System
+]]
+
+InformationSystem = concord.system {
+    projectilePool = {"Information", "Position"},
+}
+
+function InformationSystem:update(dt) 
+
+    for _, e in ipairs(self.projectilePool) do
+        if (e.Information.name == "Projectile") then
+            if (e.Position.x < -e.Information.extra.radius or e.Position.y < -e.Information.extra.radius or e.Position.x > GAME_WIDTH + e.Information.extra.radius or e.Position.y > GAME_HEIGHT + e.Information.extra.radius) then
+                e:destroy()
+            end
+        end
+    end
+
 end

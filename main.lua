@@ -37,6 +37,7 @@ function love.load()
         :addSystem(TimelineSystem)
         :addSystem(StatsSystem)
         :addSystem(ParticleSystem)
+        :addSystem(InformationSystem)
 
     local player = concord.entity(GameState.game)
         :give("Information", "Player")
@@ -58,8 +59,8 @@ function love.load()
                 type = "move",
                 args = {
                     pos = {
-                        x = 500,
-                        y = 300
+                        x = 100,
+                        y = 100
                     },
                     duration = 2,
                     func = math.easingFunctions.easeInOutQuint
@@ -75,7 +76,7 @@ function love.load()
                     lines = 3,
                     speed = 100,
                     start_radius = 20,
-                    duration = 2,
+                    duration = 1,
                     interval = 0.2,
                     radius = 5,
                     color = Color.fromRGB(255, 0, 0, 255),
@@ -83,14 +84,25 @@ function love.load()
                 },
             },
             {
-                type = "move",
+                type = "move and shoot",
                 args = {
                     pos = {
-                        x = 1024,
-                        y = 576
+                        x = 900,
+                        y = 400
                     },
-                    duration = 2,
-                    func = math.easingFunctions.easeInOutQuint
+                    duration = 10,
+                    func = math.easingFunctions.easeInOutQuint,
+                    type = "burst",
+                    bullet_type = "simple",
+                    start_angle = 36,
+                    end_angle = 360,
+                    lines = 10,
+                    speed = 300,
+                    start_radius = 30,
+                    interval = 0.1,
+                    radius = 3,
+                    color = Color.fromRGB(math.random(1, 255), math.random(1, 255), math.random(1, 255), 255),
+                    mode = "line"
                 }
             }
         })

@@ -35,24 +35,23 @@ function CollisionSystem:update(dt)
         for _,e2 in ipairs(self.pool) do
             if (e1 ~= e2) then
                 if (self:isColliding(e1, e2)) then
-                    log.info("Colliding!")
                     e1.Collider.colliding_func(e1, e2)
                 end
             end
         end
     end
 
-    for _,e1 in ipairs(self.debugPool) do
-        for _,e2 in ipairs(self.debugPool) do
-            if (e1 ~= e2) then
-                if (self:isColliding(e1, e2)) then
-                    log.info("Colliding!")
-                    log.info("e1: " .. e1.Information.name)
-                    log.info("e2: " .. e2.Information.name)
-                end
-            end
-        end
-    end
+    -- for _,e1 in ipairs(self.debugPool) do
+    --     for _,e2 in ipairs(self.debugPool) do
+    --         if (e1 ~= e2) then
+    --             if (self:isColliding(e1, e2)) then
+    --                 log.info("Colliding!")
+    --                 log.info("e1: " .. e1.Information.name)
+    --                 log.info("e2: " .. e2.Information.name)
+    --             end
+    --         end
+    --     end
+    -- end
 
 end
 

@@ -24,7 +24,6 @@ local function getProjectileCollidingFunction(parent)
         local isParentInvalid = parent.Stats == nil
         local isOtherInvalid = other.Stats == nil
         if (isParentInvalid or isOtherInvalid) then
-            log.debug("Something is off. Add more info, lazy devs!")
             return
         end
 
@@ -55,6 +54,11 @@ function SimpleProjectile(entity, parent, offset, velocity, radius, color, mode)
     projectileBase(entity, parent, offset, velocity)
     :give("CircleRenderer", radius, color, mode)
     :give("Collider", "CIRCLE", {r=radius},  {x=0,y=0}, getProjectileCollidingFunction(parent))
+    :give("Information",
+        "Projectile",
+        "Simple",
+        {radius = radius}
+    )
 end
 
 
@@ -70,5 +74,12 @@ function FancyProjectile(entity, parent, offset, velocity, index, speed)
             y = entity.SimpleSpriteRenderer.loaded:getWidth() / 2
         },
         getProjectileCollidingFunction(parent)
+    )
+    :give(
+        "Information",
+        "Fancy",
+        {
+            radius = math.max(entity.SimpleSpriteRenderer.loaded:getWidth()/2, entity.SimpleSpriteRenderer.loaded:getHeight()/2)
+        }
     )
 end
