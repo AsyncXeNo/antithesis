@@ -90,3 +90,14 @@ function Table.len(tab)
     end
     return count
 end
+
+function Table.join(dict1, dict2)
+    local table = {}
+    for key,value in pairs(dict1) do
+        table[key] = value
+    end
+    for key,value in pairs(dict2) do
+        table[key] = value
+    end
+    return table
+end

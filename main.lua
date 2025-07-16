@@ -11,6 +11,8 @@ require "global_vars"
 local spriteSheet = require "res.spritesheets"
 local sprites = require "res.sprites"
 local anims = require "res.anims"
+local enemyTypes = require 'res.enemies.basic'
+local PP = require 'res.enemies.bullet_patterns'
 
 function love.load()
 
@@ -20,7 +22,7 @@ function love.load()
     love.window.setMode(gameWidth, gameHeight)
     push:setupScreen(1024, 576, 1920, 1080, {upscale = "normal"})
     log.info("Started")
-    
+
     -- GAME STATE INITS
 
     --[[
@@ -50,69 +52,83 @@ function love.load()
         :give("Stats", 10, 100, 10, 1, 0, 0)
         :give("Player")
 
-    local obj = concord.entity(GameState.game)
-        :give("Position", 1024, 0)
-        :give ("CircleRenderer", 10, {0,0,1,1} )
-        :give ("Stats", 10, 100, 10, 1, 0, 0)
-        :give("Timeline", {
-            {
-                type = "move",
-                args = {
-                    pos = {
-                        x = 100,
-                        y = 100
-                    },
-                    duration = 2,
-                    func = math.easingFunctions.easeInOutQuint
-                }
-            },
-            {
-                type = "shoot",
-                args = {
-                    type = "burst",
-                    bullet_type = "simple",
-                    start_angle = 30,
-                    end_angle = 60,
-                    lines = 3,
-                    speed = 100,
-                    start_radius = 20,
-                    duration = 1,
-                    interval = 0.2,
-                    radius = 5,
-                    color = Color.fromRGB(255, 0, 0, 255),
-                    mode = "fill"
-                },
-            },
-            {
-                type = "move and shoot",
-                args = {
-                    pos = {
-                        x = 900,
-                        y = 400
-                    },
-                    duration = 10,
-                    func = math.easingFunctions.easeInOutQuint,
-                    type = "burst",
-                    bullet_type = "simple",
-                    start_angle = 36,
-                    end_angle = 360,
-                    lines = 10,
-                    speed = 300,
-                    start_radius = 30,
-                    interval = 0.1,
-                    radius = 3,
-                    color = Color.fromRGB(math.random(1, 255), math.random(1, 255), math.random(1, 255), 255),
-                    mode = "line"
-                }
-            }
-        })
-        :give("Collider", "CIRCLE", {r=10})
+
+    local obj = concord.entity(GameState.game):assemble(enemyTypes["come_go_easy"],
+                                                        "monster",
+                                                        10,
+                                                        {"CIRCLE", {r=10}},
+                                                        {10, 100, 10, 1, 0, 0},
+                                                        {x=1024, y=0}, 2,
+                                                        {x=100, y=100}, 5,
+                                                        {x=900, y=400},
+                                                        PP.angles(PP.speed(PP.line(PP.base(Color.fromRGB(255, 0, 0, 255), "fill", 5, 20), 3), 200, 0.5), 30, 30)
+                                                    )
+
+
+
+    -- -- local obj = concord.entity(GameState.game)   
+    --     :give("Position", 1024, 0)
+    --     :give ("CircleRenderer", 10, {0,0,1,1} )
+    --     :give ("Stats", 10, 100, 10, 1, 0, 0)
+    --     :give("Timeline", {
+    --         {
+    --             type = "move",
+    --             args = {
+    --                 pos = {
+    --                     x = 100,
+    --                     y = 100
+    --                 },
+    --                 duration = 2,
+    --                 func = math.easingFunctions.easeInOutQuint
+    --             }
+    --         },
+    --         {
+    --             type = "shoot",
+    --             args = {
+    --                 type = "burst",
+    --                 bullet_type = "simple",
+    --                 start_angle = 30,
+    --                 end_angle = 60,
+    --                 lines = 3,
+    --                 speed = 100,
+    --                 start_radius = 20,
+    --                 duration = 1,
+    --                 interval = 0.2,
+    --                 radius = 5,
+    --                 color = Color.fromRGB(255, 0, 0, 255),
+    --                 mode = "fill"
+    --             },
+    --         },
+    --         {
+    --             type = "move and shoot",
+    --             args = {
+    --                 pos = {
+    --                     x = 900,
+    --                     y = 400
+    --                 },
+    --                 duration = 10,
+    --                 func = math.easingFunctions.easeInOutQuint,
+    --                 type = "burst",
+    --                 bullet_type = "simple",
+    --                 start_angle = 36,
+    --                 end_angle = 360,
+    --                 lines = 10,
+    --                 speed = 300,
+    --                 start_radius = 30,
+    --                 interval = 0.1,
+    --                 radius = 3,
+    --                 color = Color.fromRGB(math.random(1, 255), math.random(1, 255), math.random(1, 255), 255),
+    --                 mode = "line"
+    --             }
+    --         }
+    --     })
+    --     :give("Collider", "CIRCLE", {r=10})
 
     --[[
         GAME OVER
     ]]
     
-    GameState.game_over:addSystem(MessageBoxSystem, BackgroundSystem)
+   GameState.game_over:addSystem(MessageBoxSystem, BackgroundSystem)
 
     --[[
         PAUSE MENU
